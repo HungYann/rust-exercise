@@ -1,0 +1,3 @@
+cargo:rerun-if-changed=build/main.rs
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/liuhongyang/Downloads/rust-exercise/target/debug/build/typenum-3ffbde6802251d2d/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/Users/liuhongyang/Downloads/rust-exercise/target/debug/build/typenum-3ffbde6802251d2d/out/op.rs
