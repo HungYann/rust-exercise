@@ -1,26 +1,33 @@
-use {
-    crate::error::HelloWorldError,
-    crate::processor::Processor,
-    num_traits::FromPrimitive,
-    solana_program::{
-        account_info::AccountInfo, decode_error::DecodeError, entrypoint,
-        entrypoint::ProgramResult, msg, program_error::PrintProgramError, pubkey::Pubkey,
-    },
-};
+use solana_program::account_info::{AccountInfo, next_account_info};
+use solana_program::{entrypoint, msg};
+use solana_program::entrypoint::ProgramResult;
+use solana_program::program_error::ProgramError;
+use solana_program::pubkey::Pubkey;
+use crate::processor::Note;
+
 
 entrypoint!(process_instruction);
+
 
 pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
-    instruction_data: &[u8],
+    new_content: String,
 ) -> ProgramResult {
-    msg!("Entrypoint");
-    if let Err(error) = Processor::process_instruction(program_id, accounts, instruction_data) {
-        // catch the error so we can print it
-        error.print::<HelloWorldError>();
-        return Err(error);
+    let account_info_iter = &mut accounts.iter();
+    let note_account = next_account_info(account_info_iter)?;
+
+    if !note_account.is_writable {
+        return Err(ProgramError::Custom(2));
     }
+
+    let mut note_data = Note::new(note_account.data.to_string());
+
+    note_data
+        .update_content(new_content)
+        .map_err(|e| ProgramError::from(e))?;
+
+    msg!("Note content updated: {}", note_data.content);
+
     Ok(())
 }
-
